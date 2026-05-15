@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NaturActif</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f5f0e8; font-family: Georgia, serif; min-height: 100vh; padding: 20px; }
+.container { max-width: 800px; margin: 0 auto; }
+header { text-align: center; padding: 30px 0; }
+h1 { font-size: 52px; font-weight: 900; color: #1a3a2a; letter-spacing: -2px; }
+h1 span { color: #52b788; }
+.tagline { color: #6b7c69; margin-top: 8px; font-size: 15px; }
+.tagline strong { color: #e76f51; }
+.tabs { display: flex; gap: 8px; background: white; border-radius: 16px; padding: 6px; margin-bottom: 24px; }
+.tab { flex: 1; padding: 12px; background: transparent; border: none; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: Georgia, serif; color: #6b7c69; }
+.tab.active { background: #1a3a2a; color: white; }
+.card { background: white; border-radius: 16px; padding: 28px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(26,58,42,0.06); }
+.card h3 { color: #1a3a2a; font-size: 17px; margin-bottom: 14px; }
+.search-box { display: flex; gap: 10px; margin-bottom: 14px; }
+input, textarea { flex: 1; padding: 13px 18px; border: 2px solid rgba(82,183,136,0.3); border-radius: 12px; font-size: 15px; font-family: Georgia, serif; background: #f5f0e8; outline: none; }
+textarea { width: 100%; resize: vertical; margin-bottom: 12px; }
+button.primary { padding: 13px 24px; background: #1a3a2a; color: white; border: none; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: Georgia, serif; }
+button.primary:disabled { background: #6b7c69; cursor: not-allowed; }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.pill { padding: 5px 14px; background: #d8f3dc; color: #2d6a4f; border: none; border-radius: 20px; font-size: 12px; cursor: pointer; font-family: Georgia, serif; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.result-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 4px 20px rgba(26,58,42,0.06); }
+.result-card h4 { color: #1a3a2a; font-size: 15px; margin-bottom: 10px; }
+.result-card p { font-size: 13px; line-height: 1.7; color: #333; white-space: pre-wrap; }
+.badge { display: inline-flex; gap: 8px; background: #1a3a2a; color: white; padding: 8px 18px; border-radius: 30px; font-size: 13px; margin-bottom: 16px; }
+.indication { background: #d8f3dc; border-radius: 12px; padding: 16px; margin-bottom: 14px; font-size: 14px; color: #1a3a2a; }
+.warning { background: rgba(231,111,81,0.08); border: 1px solid rgba(231,111,81,0.2); border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #8b5e3c; margin-top: 14px; }
+.loading { text-align: center; padding: 30px; color: #6b7c69; }
+.error { color: #e76f51; font-size: 13px; margin-top: 10px; }
+.hidden { display: none; }
+.marker { padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+.marker.normal { background: rgba(82,183,136,0.08); border-left: 4px solid #52b788; }
+.marker.eleve { background: rgba(192,57,43,0.08); border-left: 4px solid #c0392b; }
+.marker.bas { background: rgba(41,128,185,0.08); border-left: 4px solid #2980b9; }
+.marker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.marker-name { font-weight: bold; font-size: 14px; color: #1a3a2a; }
+.status-badge { padding: 2px 10px; border-radius: 20px; font-size: 11px; }
+.status-normal { background: #d8f3dc; color: #2d6a4f; }
+.status-eleve { background: rgba(192,57,43,0.15); color: #c0392b; }
+.status-bas { background: rgba(41,128,185,0.15); color: #2980b9; }
+footer { text-align: center; padding: 20px; color: #6b7c69; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div style="font-size:44px;margin-bottom:6px">🌿</div>
+    <h1>Natur<span>Actif</span></h1>
+    <p class="tagline">Ne subis plus. <strong>Sois acteur de ta santé.</strong></p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('med')">💊 Analyser un médicament</button>
+    <button class="tab" onclick="switchTab('blood')">🩸 Interpréter ma prise de sang</button>
+  </div>
+
+  <!-- Médicament -->
+  <div id="tab-med">
+    <div class="card">
+      <h3>Quel médicament veux-tu analyser ?</h3>
+      <div class="search-box">
+        <input type="text" id="medInput" placeholder="Ex: Doliprane, Amoxicilline..." onkeypress="if(event.key==='Enter')analyserMed()">
+        <button class="primary" onclick="analyserMed()" id="medBtn">🔍 Analyser</button>
+      </div>
+      <div class="pills">
+        <span style="font-size:12px;color:#6b7c69">Exemples :</span>
+        <button class="pill" onclick="quickMed('Doliprane')">Doliprane</button>
+        <button class="pill" onclick="quickMed('Amoxicilline')">Amoxicilline</button>
+        <button class="pill" onclick="quickMed('Metformine')">Metformine</button>
+        <button class="pill" onclick="quickMed('Ibuprofène')">Ibuprofène</button>
+        <button class="pill" onclick="quickMed('Oméprazole')">Oméprazole</button>
+      </div>
+      <div class="error hidden" id="medError"></div>
+    </div>
+    <div class="loading hidden" id="medLoading"><div style="font-size:36px;margin-bottom:10px">🔬</div><p>Analyse en cours...</p></div>
+    <div id="medResult"></div>
+  </div>
+
+  <!-- Prise de sang -->
+  <div id="tab-blood" class="hidden">
+    <div class="card">
+      <h3>🩸 Colle tes résultats de prise de sang</h3>
+      <p style="color:#6b7c69;font-size:13px;margin-bottom:12px">Ex: Glycémie 6.8, Cholestérol 5.9, Hémoglobine 11.2...</p>
+      <textarea id="bloodInput" rows="4" placeholder="Colle ici tes résultats..."></textarea>
+      <button class="primary" onclick="analyserBlood()" id="bloodBtn" style="width:100%">🩸 Analyser ma prise de sang</button>
+      <div class="pills" style="margin-top:12px">
+        <button class="pill" onclick="quickBlood('Glycémie 6.8, Cholestérol total 6.2, HDL 1.1, LDL 4.2')">Exemple bilan lipidique</button>
+        <button class="pill" onclick="quickBlood('Hémoglobine 10.5, Ferritine 8, VGM 72')">Exemple anémie</button>
+        <button class="pill" onclick="quickBlood('TSH 6.8, T4 libre 11, Créatinine 95')">Exemple thyroïde</button>
+      </div>
+      <div class="error hidden" id="bloodError"></div>
+    </div>
+    <div class="loading hidden" id="bloodLoading"><div style="font-size:36px;margin-bottom:10px">🩸</div><p>Analyse en cours...</p></div>
+    <div id="bloodResult"></div>
+  </div>
+
+  <footer><strong style="color:#2d6a4f">NaturActif</strong> — Sois acteur de ta santé</footer>
+</div>
+
+<script>
+const API_KEY = "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";
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='med')||(i===1&&tab==='blood')));
+  document.getElementById('tab-med').classList.toggle('hidden', tab!=='med');
+  document.getElementById('tab-blood').classList.toggle('hidden', tab!=='blood');
+}
+
+function quickMed(name) { document.getElementById('medInput').value = name; analyserMed(); }
+function quickBlood(text) { document.getElementById('bloodInput').value = text; analyserBlood(); }
+
+async function callClaude(prompt) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": API_KEY,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, messages: [{ role: "user", content: prompt }] })
+  });
+  const d = await r.json();
+  return d.content[0].text;
+}
+
+async function analyserMed() {
+  const med = document.getElementById('medInput').value.trim();
+  if (!med) return;
+  document.getElementById('medBtn').disabled = true;
+  document.getElementById('medLoading').classList.remove('hidden');
+  document.getElementById('medResult').innerHTML = '';
+  document.getElementById('medError').classList.add('hidden');
+
+  try {
+    const text = await callClaude(`Analyse le médicament "${med}". Réponds UNIQUEMENT en JSON: {"nom":"","molecule":"","indication":"","generiques":"","plantes":"","analyse":""}`);
+    const json = JSON.parse(text.match(/\{[\s\S]*\}/)[0]);
+    document.getElementById('medResult').innerHTML = `
+      <div class="badge">🔬 ${json.nom} — ${json.molecule}</div>
+      <div class="indication"><strong>💊 Indication :</strong> ${json.indication}</div>
+      <div class="result-grid">
+        <div class="result-card"><h4>💊 Génériques</h4><p>${json.generiques}</p></div>
+        <div class="result-card"><h4>🌿 Alternatives naturelles</h4><p>${json.plantes}</p></div>
+      </div>
+      <div class="card"><h3>🔬 Analyse complète</h3><p style="font-size:14px;line-height:1.8;white-space:pre-wrap">${json.analyse}</p></div>
+      <div class="warning">⚠️ Informations éducatives uniquement. Ne modifiez jamais votre traitement sans consulter votre médecin.</div>`;
+  } catch(e) {
+    document.getElementById('medError').classList.remove('hidden');
+    document.getElementById('medError').textContent = 'Erreur. Réessayez.';
+  }
+  document.getElementById('medLoading').classList.add('hidden');
+  document.getElementById('medBtn').disabled = false;
+}
+
+async function analyserBlood() {
+  const blood = document.getElementById('bloodInput').value.trim();
+  if (!blood) return;
+  document.getElementById('bloodBtn').disabled = true;
+  document.getElementById('bloodLoading').classList.remove('hidden');
+  document.getElementById('bloodResult').innerHTML = '';
+  document.getElementById('bloodError').classList.add('hidden');
+
+  try {
+    const text = await callClaude(`Analyse ces résultats de prise de sang: "${blood}". Réponds UNIQUEMENT en JSON: {"bilan_global":"","marqueurs":[{"nom":"","valeur":"","statut":"normal|eleve|bas","explication":"","conseil_naturel":""}],"conseils_generaux":"","questions_medecin":""}`);
+    const json = JSON.parse(text.match(/\{[\s\S]*\}/)[0]);
+    let markersHTML = json.marqueurs.map(m => `
+      <div class="marker ${m.statut}">
+        <div class="marker-header">
+          <span class="marker-name">${m.nom}</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:13px;font-weight:bold">${m.valeur}</span>
+            <span class="status-badge status-${m.statut}">${m.statut==='normal'?'✓ Normal':m.statut==='eleve'?'↑ Élevé':'↓ Bas'}</span>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#444;line-height:1.5">${m.explication}</p>
+        ${m.conseil_naturel && m.statut!=='normal' ? `<p style="font-size:12px;color:#2d6a4f;margin-top:6px">🌿 <strong>Naturel :</strong> ${m.conseil_naturel}</p>` : ''}
+      </div>`).join('');
+
+    document.getElementById('bloodResult').innerHTML = `
+      <div class="card" style="background:#d8f3dc"><h3>📋 Bilan global</h3><p style="font-size:14px;color:#1a3a2a;line-height:1.6">${json.bilan_global}</p></div>
+      <div class="card"><h3>🔬 Analyse détaillée</h3>${markersHTML}</div>
+      <div class="card"><h3>💡 Conseils</h3><p style="font-size:13px;line-height:1.7;white-space:pre-wrap">${json.conseils_generaux}</p></div>
+      <div class="card" style="background:rgba(41,128,185,0.06)"><h3 style="color:#2980b9">🩺 Questions à poser au médecin</h3><p style="font-size:13px;line-height:1.7;white-space:pre-wrap">${json.questions_medecin}</p></div>
+      <div class="warning">⚠️ NaturActif fournit des informations éducatives. Ces résultats ne remplacent pas l'avis de votre médecin.</div>`;
+  } catch(e) {
+    document.getElementById('bloodError').classList.remove('hidden');
+    document.getElementById('bloodError').textContent = 'Erreur. Vérifiez le format et réessayez.';
+  }
+  document.getElementById('bloodLoading').classList.add('hidden');
+  document.getElementById('bloodBtn').disabled = false;
+}
+</script>
+</body>
+</html>
